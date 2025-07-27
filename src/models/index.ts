@@ -1,23 +1,17 @@
-import "reflect-metadata";
-import {
-  Model as BaseModel,
-  RelationMappings,
-  snakeCaseMappers,
-} from "objection";
-import knex from "knex";
-import { attachPaginate, IPagination } from "knex-paginate";
-import { knexConfig } from "../configs/knex";
+import 'reflect-metadata';
+import { Model as BaseModel, RelationMappings } from 'objection';
+import knex from 'knex';
+import { knexConfig } from '../configs/knex';
 
 const knexInstance = knex(knexConfig);
-attachPaginate();
 
 BaseModel.knex(knexInstance);
-const relationMetadataKey = Symbol("relations");
+const relationMetadataKey = Symbol('relations');
 
 type RelationType =
-  | "HasManyRelation"
-  | "BelongsToOneRelation"
-  | "ManyToManyRelation";
+  | 'HasManyRelation'
+  | 'BelongsToOneRelation'
+  | 'ManyToManyRelation';
 
 export class Model extends BaseModel {
   id?: number;
@@ -50,7 +44,7 @@ export class Model extends BaseModel {
         join: {
           from: item.join.from,
           to: item.join.to,
-          ...(item.relation === "ManyToManyRelation"
+          ...(item.relation === 'ManyToManyRelation'
             ? {
                 through: {
                   from: item.through.from,

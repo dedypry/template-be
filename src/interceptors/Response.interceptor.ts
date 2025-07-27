@@ -1,8 +1,9 @@
-import { Action, Interceptor, InterceptorInterface } from "routing-controllers";
+import { Action, Interceptor, InterceptorInterface } from 'routing-controllers';
 
 @Interceptor()
 export class ResponseInterceptor implements InterceptorInterface {
   intercept(action: Action, result: any) {
+
     if (result?.results) {
       const { page, pageSize } = action.request.query;
       if (result?.total) {
@@ -24,15 +25,11 @@ export class ResponseInterceptor implements InterceptorInterface {
 
     if (Array.isArray(result)) {
       return {
-        status: "success",
+        status: 'success',
         data: result,
       };
     }
 
-    return {
-      status: "success",
-      data: result.data || "NO DATA",
-      message: result.message,
-    };
+    return result;
   }
 }

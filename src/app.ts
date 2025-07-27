@@ -1,27 +1,25 @@
-if (process.env.NODE_ENV === "production") {
-  require("module-alias/register");
+if (process.env.NODE_ENV === 'production') {
+  require('module-alias/register');
 }
-import "dotenv/config";
-import "reflect-metadata";
-import { Action, createExpressServer } from "routing-controllers";
-import path from "path";
-import { ErrorHandler } from "./exceptions/filter";
-import { checkToken } from "./guards/check_token";
-import { ResponseInterceptor } from "./interceptors/Response.interceptor";
-import { LoggingMiddleware } from "./middlewares/Logging.middleware";
+import 'dotenv/config';
+import 'reflect-metadata';
+import { Action, createExpressServer } from 'routing-controllers';
+import path from 'path';
+import { ErrorHandler } from './exceptions/filter';
+import { ResponseInterceptor } from './interceptors/Response.interceptor';
+import { LoggingMiddleware } from './middlewares/Logging.middleware';
 
-const ext = process.env.NODE_ENV === "production" ? "js" : "ts";
+const ext = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
 
 const app = createExpressServer({
-  routePrefix: "/api",
+  routePrefix: '',
   controllers: [path.join(__dirname + `/controllers/*.${ext}`)],
   middlewares: [LoggingMiddleware, ErrorHandler],
   interceptors: [ResponseInterceptor],
   cors: true,
   defaultErrorHandler: false,
-  authorizationChecker: checkToken,
   currentUserChecker: (action: Action) => {
-    return action.request["user"];
+    return action.request['user'];
   },
   defaults: {
     nullResultCode: 404,

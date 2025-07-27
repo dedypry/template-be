@@ -1,9 +1,9 @@
-import { ModelClass, RelationMappings } from "objection";
-const tableMetadataKey = Symbol("tableName");
+import { ModelClass } from 'objection';
+const tableMetadataKey = Symbol('tableName');
 
-const relationMetadataKey = Symbol("relations");
+const relationMetadataKey = Symbol('relations');
 
-type RelationType = "HasOne" | "HasMany" | "BelongsToOne";
+type RelationType = 'HasOne' | 'HasMany' | 'BelongsToOne';
 
 interface RelationMeta {
   property: string;
@@ -38,7 +38,7 @@ export function Table(name: string) {
   return function (target: any) {
     Reflect.defineMetadata(tableMetadataKey, name, target);
 
-    Object.defineProperty(target, "tableName", {
+    Object.defineProperty(target, 'tableName', {
       get: () => Reflect.getMetadata(tableMetadataKey, target),
     });
   };
@@ -48,19 +48,19 @@ export const HasOne = (
   relatedModel: () => ModelClass<any>,
   from: string,
   to: string
-) => addRelation("HasOne", relatedModel, from, to);
+) => addRelation('HasOne', relatedModel, from, to);
 
 export const HasMany = (
   relatedModel: () => ModelClass<any>,
   from: string,
   to: string
-) => addRelation("HasMany", relatedModel, from, to);
+) => addRelation('HasMany', relatedModel, from, to);
 
 export const BelongsToOne = (
   relatedModel: () => ModelClass<any>,
   from: string,
   to: string
-) => addRelation("BelongsToOne", relatedModel, from, to);
+) => addRelation('BelongsToOne', relatedModel, from, to);
 
 export function ManyToMany(modelClass: () => any, join: any) {
   return function (target: any, propertyKey: string) {

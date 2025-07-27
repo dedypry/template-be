@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/app.ts",
   "engines": {
-    "node": "22"
+    "node": ">=18"
   },
   "scripts": {
     "build": "rm -rf ./build && tsc",
@@ -12,8 +12,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prettier:fix": "prettier --write \"**/*.{ts,md}\"",
     "prettier:check": "prettier --check \"**/*.{ts,md}\"",
-    "lint:fix": "eslint --max-warnings 0 --fix src/**/*.ts",
-    "lint:check": "eslint --max-warnings 0 src/**/*.ts"
+    "lint:check": "eslint --max-warnings 0 src/**/*.ts",
+    "lint": "eslint --ext ts src",
+    "lint:fix": "eslint --ext ts --fix src"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +28,6 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "knex": "^3.1.0",
-    "knex-paginate": "^3.2.0",
     "module-alias": "^2.2.3",
     "multer": "^2.0.2",
     "nodemon": "^3.1.10",
@@ -46,6 +46,8 @@
     "@types/node": "^20.19.9",
     "@types/validator": "^13.15.2",
     "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "~8.48.0",
+    "@typescript-eslint/eslint-plugin": "~6.5.0",
     "ts-node": "10.9.2",
     "tsconfig-paths": "^4.2.0"
   },
