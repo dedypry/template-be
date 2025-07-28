@@ -1,17 +1,12 @@
-import 'reflect-metadata';
-import { Model as BaseModel, RelationMappings } from 'objection';
-import knex from 'knex';
-import { knexConfig } from '../configs/knex';
+import "reflect-metadata";
+import { Model as BaseModel, RelationMappings } from "objection";
+import knex from "knex";
+import { knexConfig } from "../configs/knex";
 
 const knexInstance = knex(knexConfig);
 
 BaseModel.knex(knexInstance);
-const relationMetadataKey = Symbol('relations');
-
-type RelationType =
-  | 'HasManyRelation'
-  | 'BelongsToOneRelation'
-  | 'ManyToManyRelation';
+const relationMetadataKey = Symbol("relations");
 
 export class Model extends BaseModel {
   id?: number;
@@ -31,33 +26,5 @@ export class Model extends BaseModel {
     return this.query()
       .findById(id)
       .patch({ deleted_at: new Date().toISOString() });
-  }
-
-  static get relationMappings(): RelationMappings {
-    const meta = Reflect.getMetadata(relationMetadataKey, this) || [];
-    const mappings: RelationMappings = {};
-
-    for (const item of meta) {
-      mappings[item.property] = {
-        relation: BaseModel[item.relation as RelationType],
-        modelClass: item.relatedModel,
-        join: {
-          from: item.join.from,
-          to: item.join.to,
-          ...(item.relation === 'ManyToManyRelation'
-            ? {
-                through: {
-                  from: item.through.from,
-                  to: item.through.to,
-                  modelClass: item.through.modelClass,
-                  extra: item.through.extra,
-                },
-              }
-            : {}),
-        },
-      };
-    }
-
-    return mappings;
   }
 }

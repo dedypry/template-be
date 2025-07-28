@@ -15,9 +15,9 @@ export class ResponseInterceptor implements InterceptorInterface {
         return {
           data: result?.results,
           total: result?.total,
-          currentPage: currentPage,
-          perPage: perPage,
-          lastPage: lastPage,
+          current_page: currentPage,
+          per_page: perPage,
+          last_page: lastPage,
         };
       }
       return {
@@ -32,6 +32,8 @@ export class ResponseInterceptor implements InterceptorInterface {
       };
     }
 
-    return result;
+    return {
+      message: result,
+    };
   }
 }

@@ -1,9 +1,10 @@
-import { ModelClass } from 'objection';
-const tableMetadataKey = Symbol('tableName');
+import { Model, ModelClass } from "objection";
+const tableMetadataKey = Symbol("tableName");
+import pluralize from "pluralize";
 
-const relationMetadataKey = Symbol('relations');
+const relationMetadataKey = Symbol("relations");
 
-type RelationType = 'HasOne' | 'HasMany' | 'BelongsToOne';
+export type RelationType = "HasOne" | "HasMany" | "BelongsToOne" | "ManyToMany";
 
 interface RelationMeta {
   property: string;
@@ -12,66 +13,128 @@ interface RelationMeta {
   join: {
     from: string;
     to: string;
+    through?: {
+      from: string;
+      to: string;
+      extra?: string[];
+    };
   };
 }
 
-function addRelation(
-  relation: RelationType,
-  relatedModel: () => ModelClass<any>,
-  from: string,
-  to: string
-) {
-  return function (target: any, propertyKey: string) {
-    const existing: RelationMeta[] =
-      Reflect.getMetadata(relationMetadataKey, target.constructor) || [];
-    existing.push({
-      property: propertyKey,
-      relation,
-      relatedModel,
-      join: { from, to },
-    });
-    Reflect.defineMetadata(relationMetadataKey, existing, target.constructor);
-  };
-}
-
-export function Table(name: string) {
+export function Table(name?: string) {
   return function (target: any) {
-    Reflect.defineMetadata(tableMetadataKey, name, target);
+    let tableName = name
+      ? name
+      : target.name
+          .replace(/Model$/, "")
+          .replace(/[A-Z]/g, (char, index) =>
+            index === 0 ? char.toLowerCase() : `_${char.toLowerCase()}`
+          );
 
-    Object.defineProperty(target, 'tableName', {
+    if (!name) {
+      tableName = pluralize.isPlural(tableName)
+        ? tableName
+        : pluralize.plural(tableName);
+    }
+
+    Reflect.defineMetadata(tableMetadataKey, tableName, target);
+
+    Object.defineProperty(target, "tableName", {
       get: () => Reflect.getMetadata(tableMetadataKey, target),
     });
+
+    Object.defineProperty(target, "relationMappings", {
+      get: function () {
+        const relations =
+          Reflect.getMetadata(relationMetadataKey, target) || {};
+
+        const mappings: any = {};
+        for (const [key, value] of Object.entries(relations)) {
+          let relation: any = null;
+
+          switch ((value as RelationMeta).relation as RelationType) {
+            case "BelongsToOne":
+              relation = Model.BelongsToOneRelation;
+              break;
+            case "HasMany":
+              relation = Model.HasManyRelation;
+              break;
+            case "HasOne":
+              relation = Model.HasOneRelation;
+              break;
+            case "ManyToMany":
+              relation = Model.ManyToManyRelation;
+              break;
+
+            default:
+              break;
+          }
+
+          mappings[key] = {
+            relation,
+            modelClass: (value as any).modelClass,
+            join: (value as any).join,
+          };
+        }
+        return mappings;
+      },
+    });
   };
 }
 
-export const HasOne = (
-  relatedModel: () => ModelClass<any>,
-  from: string,
-  to: string
-) => addRelation('HasOne', relatedModel, from, to);
+export function HasMany(modelClass: () => any, join: any) {
+  return function (target: any, propertyKey: string) {
+    const relations =
+      Reflect.getMetadata(relationMetadataKey, target.constructor) || {};
 
-export const HasMany = (
-  relatedModel: () => ModelClass<any>,
-  from: string,
-  to: string
-) => addRelation('HasMany', relatedModel, from, to);
+    relations[propertyKey] = {
+      relation: "HasMany",
+      modelClass,
+      join,
+    };
 
-export const BelongsToOne = (
-  relatedModel: () => ModelClass<any>,
-  from: string,
-  to: string
-) => addRelation('BelongsToOne', relatedModel, from, to);
+    Reflect.defineMetadata(relationMetadataKey, relations, target.constructor);
+  };
+}
+export function BelongsToOne(modelClass: () => any, join: any) {
+  return function (target: any, propertyKey: string) {
+    const relations =
+      Reflect.getMetadata(relationMetadataKey, target.constructor) || {};
 
+    relations[propertyKey] = {
+      relation: "BelongsToOne",
+      modelClass,
+      join,
+    };
+
+    Reflect.defineMetadata(relationMetadataKey, relations, target.constructor);
+  };
+}
+export function HasOne(modelClass: () => any, join: any) {
+  return function (target: any, propertyKey: string) {
+    const relations =
+      Reflect.getMetadata(relationMetadataKey, target.constructor) || {};
+
+    relations[propertyKey] = {
+      relation: "HasOne",
+      modelClass,
+      join,
+    };
+
+    Reflect.defineMetadata(relationMetadataKey, relations, target.constructor);
+  };
+}
 export function ManyToMany(modelClass: () => any, join: any) {
   return function (target: any, propertyKey: string) {
-    if (!target.constructor.manyToMany) target.constructor.manyToMany = [];
-    target.constructor.manyToMany.push({ propertyKey, modelClass, join });
-  };
-}
+    const relations =
+      Reflect.getMetadata(relationMetadataKey, target.constructor) || {};
 
-export function Join(modelClass: () => any, relationName?: string) {
-  return function (target: any, propertyKey: string) {
-    if (!target.constructor.joins) target.constructor.joins = [];
-    target.constructor.joins.push({ propertyKey, modelClass, relationName });
+    relations[propertyKey] = {
+      relation: "ManyToMany",
+      modelClass,
+      join,
+    };
+
+    Reflect.defineMetadata(relationMetadataKey, relations, target.constructor);
   };
 }
