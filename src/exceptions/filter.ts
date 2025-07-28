@@ -4,7 +4,9 @@ import {
   HttpError,
   Middleware,
 } from 'routing-controllers';
+import { Service } from 'typedi';
 
+@Service()
 @Middleware({ type: 'after' })
 export class ErrorHandler implements ExpressErrorMiddlewareInterface {
   error(
