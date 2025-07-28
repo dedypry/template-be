@@ -6,7 +6,7 @@ export class ResponseInterceptor implements InterceptorInterface {
 
     if (result?.results) {
       const { page, pageSize } = action.request.query;
-      if (result?.total) {
+      if (result?.total >= 0) {
         const perPage = +pageSize || 10;
         const currentPage = page ? +page - 1 : 1;
         const lastPage = Math.ceil(result.total / perPage);
