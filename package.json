@@ -10,8 +10,6 @@
     "dev": "nodemon",
     "start": "pnpm build &&NODE_ENV=production node build/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prettier:fix": "prettier --write \"**/*.{ts,md}\"",
-    "prettier:check": "prettier --check \"**/*.{ts,md}\"",
     "lint:check": "eslint --max-warnings 0 src/**/*.ts",
     "lint": "eslint --ext ts src",
     "lint:fix": "eslint --ext ts --fix src"
