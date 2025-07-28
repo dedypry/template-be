@@ -44,6 +44,12 @@ export function Table(name?: string) {
       get: () => Reflect.getMetadata(tableMetadataKey, target),
     });
 
+    Object.defineProperty(target, "modifiers", {
+      get: function () {
+        return Reflect.getMetadata(modifierMetadataKey, target) || {};
+      },
+    });
+
     Object.defineProperty(target, "relationMappings", {
       get: function () {
         const relations =
@@ -138,4 +144,24 @@ export function ManyToMany(modelClass: () => any, join: IJoin) {
 
     Reflect.defineMetadata(relationMetadataKey, relations, target.constructor);
   };
+}
+
+export function Modifiers(name: string, fn: (builder: any) => any) {
+  return function (target: any) {
+    const existing =
+      Reflect.getMetadata(modifierMetadataKey, target.constructor) || {};
+    existing[name] = fn;
+    Reflect.defineMetadata(modifierMetadataKey, existing, target.constructor);
+  };
+}
+
+export function Modifier(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const modifiers =
+    Reflect.getMetadata(modifierMetadataKey, target.constructor) || {};
+  modifiers[propertyKey] = descriptor.value;
+  Reflect.defineMetadata(modifierMetadataKey, modifiers, target.constructor);
 }
