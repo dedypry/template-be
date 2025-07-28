@@ -3,6 +3,7 @@ const tableMetadataKey = Symbol("tableName");
 import pluralize from "pluralize";
 
 const relationMetadataKey = Symbol("relations");
+const modifierMetadataKey = Symbol("modifiers");
 
 export type RelationType = "HasOne" | "HasMany" | "BelongsToOne" | "ManyToMany";
 
@@ -41,6 +42,12 @@ export function Table(name?: string) {
 
     Object.defineProperty(target, "tableName", {
       get: () => Reflect.getMetadata(tableMetadataKey, target),
+    });
+
+    Object.defineProperty(target, "modifiers", {
+      get: function () {
+        return Reflect.getMetadata(modifierMetadataKey, target) || {};
+      },
     });
 
     Object.defineProperty(target, "relationMappings", {
@@ -137,4 +144,24 @@ export function ManyToMany(modelClass: () => any, join: any) {
 
     Reflect.defineMetadata(relationMetadataKey, relations, target.constructor);
   };
+}
+
+export function Modifiers(name: string, fn: (builder: any) => any) {
+  return function (target: any) {
+    const existing =
+      Reflect.getMetadata(modifierMetadataKey, target.constructor) || {};
+    existing[name] = fn;
+    Reflect.defineMetadata(modifierMetadataKey, existing, target.constructor);
+  };
+}
+
+export function Modifier(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const modifiers =
+    Reflect.getMetadata(modifierMetadataKey, target.constructor) || {};
+  modifiers[propertyKey] = descriptor.value;
+  Reflect.defineMetadata(modifierMetadataKey, modifiers, target.constructor);
 }

@@ -6,7 +6,6 @@ import { knexConfig } from "../configs/knex";
 const knexInstance = knex(knexConfig);
 
 BaseModel.knex(knexInstance);
-const relationMetadataKey = Symbol("relations");
 
 export class Model extends BaseModel {
   id?: number;
