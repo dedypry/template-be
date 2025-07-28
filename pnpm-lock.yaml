@@ -14,6 +14,9 @@ importers:
       body-parser:
         specifier: ^2.2.0
         version: 2.2.0
+      class-transformer:
+        specifier: ^0.5.1
+        version: 0.5.1
       class-validator:
         specifier: ^0.14.2
         version: 0.14.2
