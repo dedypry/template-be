@@ -25,9 +25,9 @@ export class ResponseInterceptor implements InterceptorInterface {
       };
     }
 
-    if (Array.isArray(result)) {
+    if (Array.isArray(result) || typeof result == "object") {
       return {
-        status: 'success',
+        status: "success",
         data: result,
       };
     }
